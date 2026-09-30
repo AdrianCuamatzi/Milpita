@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Milpa"><meta name="theme-color" content="#f2f2f7">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon.png">
+<title>Milpa</title>
+<style>
+:root{--bg:#f2f2f7;--card:#fff;--tx:#000;--mu:#6c6c70;--sep:#c6c6c8;--bl:#007aff;--gr:#34c759;--or:#ff9500;--rd:#ff3b30;--bar:rgba(249,249,249,.85)}
+@media(prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--tx:#fff;--mu:#8e8e93;--sep:#38383a;--bl:#0a84ff;--gr:#30d158;--or:#ff9f0a;--rd:#ff453a;--bar:rgba(30,30,30,.85)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;padding:env(safe-area-inset-top) 0 calc(84px + env(safe-area-inset-bottom))}
+h1{font-size:34px;letter-spacing:.3px;margin:14px 16px 12px}
+h2{font-size:13px;font-weight:400;color:var(--mu);text-transform:uppercase;margin:0 32px 6px}
+.view{display:none}.view.on{display:block;animation:in .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(14px)}}
+.grp{background:var(--card);border-radius:12px;margin:0 16px 22px;overflow:hidden}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;min-height:44px}
+.row+.row{border-top:.5px solid var(--sep)}
+.row>:last-child{text-align:right}.row small{color:var(--mu)}
+input{font:inherit;color:var(--bl);background:none;border:0;text-align:right;min-width:0;width:55%;outline:0}
+.seg{display:flex;background:rgba(118,118,128,.18);border-radius:9px;padding:2px}
+.seg button{border:0;background:none;color:var(--tx);font:inherit;font-size:14px;padding:5px 14px;border-radius:7px;transition:.25s}
+.seg .on{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.btn{display:block;width:calc(100% - 32px);margin:0 16px 22px;padding:14px;border:0;border-radius:14px;background:var(--bl);color:#fff;font:inherit;font-weight:600;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.pop{animation:pop .5s cubic-bezier(.2,1.2,.3,1) both;animation-delay:calc(var(--i)*70ms)}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(10px)}}
+.bar{height:8px;border-radius:4px;background:rgba(118,118,128,.2);margin:14px 16px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gr);border-radius:4px;animation:gr 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes gr{from{width:0}}
+.big{font-size:34px;font-weight:700;padding:4px 16px 12px}
+.note{color:var(--mu);font-size:13px;margin:-14px 32px 22px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px}
+.badge{display:inline-block;color:#fff;font-weight:700;border-radius:20px;padding:6px 16px;margin:14px 16px 4px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bar);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-top:.5px solid var(--sep);padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
+.tab{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s}
+.tab.on{color:var(--bl)}.tab.on svg{transform:scale(1.12)}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s cubic-bezier(.2,1.6,.4,1)}
+iframe{width:100%;height:220px;border:0;display:block}
+a{color:var(--bl);text-decoration:none}svg.m{display:block;width:100%}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<section class="view on" id="v0"><h1>Mi siembra</h1>
+<h2>Datos del cultivo</h2><div class="grp">
+<label class="row"><span>Fecha de siembra</span><input id="fecha" type="date"></label>
+<label class="row"><span>Hectáreas</span><input id="ha" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0"></label>
+<label class="row"><span>Estado</span><input id="estado" placeholder="Tlaxcala" autocomplete="off"></label>
+<label class="row"><span>Municipio</span><input id="mun" placeholder="Municipio" autocomplete="off"></label>
+<div class="row"><span>Sistema</span><div class="seg" id="sis"><button data-v="t" class="on">Temporal</button><button data-v="r">Riego</button></div></div>
+<label class="row"><span>Rendimiento (t/ha)</span><input id="rend" type="number" inputmode="decimal" step="0.1" value="3.5"></label>
+<label class="row"><span>Precio por tonelada ($)</span><input id="precio" type="number" inputmode="decimal" value="6000"></label>
+<label class="row"><span>Costo por ha ($, opcional)</span><input id="costo" type="number" inputmode="decimal" value="0"></label>
+</div>
+<button class="btn" id="go">Calcular</button><div id="out"></div></section>
+<section class="view" id="v1"><h1>Clima</h1><div id="cl"></div></section>
+<section class="view" id="v2"><h1>Zona</h1><div id="zn"></div></section>
+<nav>
+<button class="tab on"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>Panel</button>
+<button class="tab"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 9.5 4.25 4.25 0 0 1 17 18z"/></svg>Clima</button>
+<button class="tab"><svg viewBox="0 0 24 24"><path d="M3 19l6-10 4 6 2.5-4L21 19z"/></svg>Zona</button>
+</nav>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const F=['fecha','ha','estado','mun','rend','precio','costo'],K='milpa:dash';
+let S={},sis='t';try{S=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
+F.forEach(f=>{if(S[f]!=null&&S[f]!=='')$('#'+f).value=S[f]});
+function setSis(v){sis=v;$$('#sis button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
+setSis(S.sis||'t');$$('#sis button').forEach(b=>b.onclick=()=>setSis(b.dataset.v));
+const n0=x=>Math.round(x).toLocaleString('es-MX'),n1=x=>x.toLocaleString('es-MX',{maximumFractionDigits:1}),mx=x=>x.toLocaleString('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0});
+const add=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r},fd=d=>d.toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rel=(d,t)=>{const n=Math.round((d-t)/864e5);return n===0?'hoy':n>0?'en '+n+' días':'hace '+(-n)+' días'};
+function cu(){$$('.cu').forEach(e=>{const to=+e.dataset.n,m=e.dataset.m,t0=performance.now();const st=t=>{const p=Math.min(1,(t-t0)/900),x=to*(1-Math.pow(1-p,3));e.textContent=m==='$'?mx(x):n1(x);if(p<1)requestAnimationFrame(st)};requestAnimationFrame(st)})}
+function calc(){
+ const v=i=>$('#'+i).value;S={};F.forEach(f=>S[f]=v(f));S.sis=sis;
+ try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
+ const out=$('#out'),ha=parseFloat(v('ha'));
+ if(!v('fecha')||!(ha>0)){out.innerHTML='<p class="note" style="margin-top:0">Captura la fecha de siembra y las hectáreas.</p>';return}
+ const s0=new Date(v('fecha')+'T12:00:00'),hoy=new Date(),dd=Math.round((hoy-s0)/864e5);
+ const ev=[['Siembra y 1.ª fertilización',0,'var(--bl)'],['2.ª fertilización',35,'var(--or)'],['Elote tierno',100,'var(--gr)'],['Madurez fisiológica',150,'var(--or)'],['Seco, listo para trilladora',180,'var(--rd)']];
+ const pct=Math.max(0,Math.min(100,dd/180*100));
+ const etapa=dd<0?'Aún no se siembra':dd>180?'Ya puede cosecharse con trilladora si el grano está seco':'Día '+dd+' de ~180';
+ const D=sis==='t'?[120,60,30]:[160,80,40];
+ const dap=D[1]*ha/.46,urea=(D[0]*ha-dap*.18)/.46,kcl=D[2]*ha/.6;
+ const b=x=>n0(x)+' kg<br><small>'+Math.ceil(x/50)+' bultos de 50 kg</small>';
+ const ton=parseFloat(v('rend')||0)*ha,ing=ton*parseFloat(v('precio')||0),cos=parseFloat(v('costo')||0)*ha,gan=ing-cos;
+ const q=encodeURIComponent(v('mun')+', '+v('estado')+', México');
+ const R=(a,c)=>'<div class="row"><span>'+a+'</span><span>'+c+'</span></div>';
+ out.innerHTML=
+ '<h2>Calendario aproximado</h2><div class="grp pop" style="--i:0">'+ev.map(e=>{const d=add(s0,e[1]);return R('<i class="dot" style="background:'+e[2]+'"></i>'+e[0],fd(d)+'<br><small>'+rel(d,hoy)+'</small>')}).join('')+'<div class="bar"><i style="width:'+pct+'%"></i></div></div>'+
+ '<p class="note">'+etapa+'. Plazos típicos de valles altos; cambian con la variedad y el clima.</p>'+
+ '<h2>Fertilizante para '+n1(ha)+' ha</h2><div class="grp pop" style="--i:1">'+
+ R('Siembra · DAP 18-46-00',b(dap))+R('Siembra · Cloruro de potasio',b(kcl))+R('Siembra · Urea (1/3)',b(urea/3))+R('A los 35 días · Urea (2/3)',b(urea*2/3))+'</div>'+
+ '<p class="note">Dosis de referencia N-P₂O₅-K₂O: '+D.join('-')+' kg/ha. Un análisis de suelo la afina.</p>'+
+ '<h2>Producción y ganancia</h2><div class="grp pop" style="--i:2">'+R('Producción estimada',n1(ton)+' toneladas')+R('Ingreso por venta',mx(ing))+R('Costos',mx(cos))+R('Ganancia aproximada','')+'<div class="big" style="color:var(--'+(gan>=0?'gr':'rd')+')"><span class="cu" data-m="$" data-n="'+gan+'">0</span></div></div>'+
+ (v('mun')&&v('estado')?'<h2>Ubicación</h2><div class="grp pop" style="--i:3"><iframe loading="lazy" title="Mapa" src="https://www.google.com/maps?q='+q+'&output=embed"></iframe><div class="row"><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+q+'">Abrir en Google Maps</a></div></div>':'');
+ cu();
+}
+$('#go').onclick=calc;
+let G=null,Gk='';
+async function getGeo(){
+ const es=$('#estado').value.trim(),mu=$('#mun').value.trim();
+ if(!es||!mu)throw new Error('Captura estado y municipio en la pestaña Panel.');
+ if(G&&Gk===es+'|'+mu)return G;
+ const n=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const r=await(await fetch('https://geocoding-api.open-meteo.com/v1/search?count=10&language=es&countryCode=MX&name='+encodeURIComponent(mu))).json();
+ const hit=(r.results||[]).find(x=>n(x.admin1||'')===n(es))||(r.results||[])[0];
+ if(!hit)throw new Error('No encontré "'+mu+'". Prueba con otra localidad cercana.');
+ const w=await(await fetch('https://api.open-meteo.com/v1/forecast?latitude='+hit.latitude+'&longitude='+hit.longitude+'&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&past_days=14&forecast_days=16&timezone=auto')).json();
+ Gk=es+'|'+mu;return G={hit,w};
+}
+async function clima(){
+ const el=$('#cl');el.innerHTML='<p class="note" style="margin-top:0">Consultando el clima…</p>';
+ try{const{hit,w}=await getGeo(),d=w.daily,sm=a=>a.reduce((s,x)=>s+(x||0),0);
+  const pas=sm(d.precipitation_sum.slice(0,14)),fut=sm(d.precipitation_sum.slice(14));
+  const tx=Math.max(...d.temperature_2m_max.slice(14)),tn=Math.min(...d.temperature_2m_min.slice(14));
+  const mes=new Date().getMonth()+1,ll=mes>=5&&mes<=9;let e,c,t;
+  if(tn<=0){e='Riesgo';c='var(--rd)';t='Se esperan heladas. El maíz joven o en llenado de grano puede dañarse.'}
+  else if(tx>=34){e='Riesgo';c='var(--rd)';t='Se esperan días de calor extremo que pueden estresar la planta.'}
+  else if(ll&&pas+fut<40){e='Riesgo';c='var(--rd)';t='Ha llovido y se espera poco: hay riesgo de sequía en plena temporada.'}
+  else if(pas+fut>250){e='Regular';c='var(--or)';t='Lluvia abundante: vigila encharcamientos y enfermedades.'}
+  else{e='Favorable';c='var(--gr)';t='Sin señales de helada, calor extremo ni sequía en este periodo.'}
+  const R=(a,b)=>'<div class="row"><span>'+a+'</span><span>'+b+'</span></div>';
+  el.innerHTML='<h2>'+esc(hit.name)+', '+esc(hit.admin1||'')+'</h2><div class="grp pop" style="--i:0"><span class="badge" style="background:'+c+'">'+e+'</span><p style="margin:4px 16px 14px">'+t+'</p>'+
+  R('Lluvia, últimos 14 días',n0(pas)+' mm')+R('Lluvia, próximos 16 días',n0(fut)+' mm')+R('Máxima esperada',n0(tx)+' °C')+R('Mínima esperada',n0(tn)+' °C')+'</div>'+
+  '<p class="note">Es un panorama de 30 días, no un pronóstico de toda la temporada, y no anticipa granizo. Consulta los avisos oficiales en <a target="_blank" rel="noopener" href="https://smn.conagua.gob.mx">smn.conagua.gob.mx</a>.</p>';
+ }catch(x){el.innerHTML='<p class="note" style="margin-top:0">'+esc(x.message)+'</p>'}
+}
+function mont(h){
+ const y=v=>190-Math.max(0,v)/5600*170,yt=y(h),yp=y(5400);
+ return '<svg class="m" viewBox="0 0 360 200" role="img" aria-label="Tu terreno comparado con el Popocatépetl"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#e3f4ff"/></linearGradient></defs><rect width="360" height="200" fill="url(#sk)"/>'+
+ '<path d="M0 200V'+(yt+6)+'Q50 '+(yt-4)+' 105 '+(yt+2)+'L175 '+(yt-30)+'L228 '+(yp+22)+'L246 '+yp+'L264 '+(yp+10)+'L312 '+(yt-25)+'L360 '+(yt-4)+'V200Z" fill="#8e8e93"/>'+
+ '<path d="M228 '+(yp+22)+'L246 '+yp+'L264 '+(yp+10)+'L252 '+(yp+18)+'L243 '+(yp+12)+'L235 '+(yp+20)+'Z" fill="#fff"/>'+
+ '<line x1="246" y1="'+yp+'" x2="246" y2="'+yt+'" stroke="#ff3b30" stroke-width="1.5" stroke-dasharray="3 3"/><line x1="60" y1="'+yt+'" x2="246" y2="'+yt+'" stroke="#ff9500" stroke-width="1.5" stroke-dasharray="3 3"/>'+
+ '<circle cx="60" cy="'+yt+'" r="6" fill="#ff9500" stroke="#fff" stroke-width="2"/>'+
+ '<text x="12" y="'+(yt-14)+'" font-size="11" font-weight="700" fill="#000">Tu zona · '+n0(h)+' m</text><text x="352" y="'+(yp-6)+'" text-anchor="end" font-size="11" font-weight="700" fill="#000">Popocatépetl · ≈5,400 m</text></svg>';
+}
+async function zona(){
+ const el=$('#zn');el.innerHTML='<p class="note" style="margin-top:0">Buscando tu zona…</p>';
+ const L=(t,a)=>'<h2>'+t+'</h2><div class="grp pop" style="--i:1">'+a.map(x=>'<div class="row"><span style="text-align:left">'+x+'</span></div>').join('')+'</div>';
+ try{const{hit,w}=await getGeo(),h=w.elevation;
+  el.innerHTML='<h2>Elevación</h2><div class="grp pop" style="--i:0">'+mont(h)+'<div class="row"><span>El volcán se eleva</span><span>≈'+n0(5400-h)+' m más que tu zona</span></div></div>'+
+  '<p class="note">Altura del modelo de terreno en las coordenadas de '+esc(hit.name)+'; tu parcela puede variar. La altura del volcán cambia según la fuente.</p>'+
+  L('Suelo (referencia del Altiplano central)',['Predominan suelos de origen volcánico: feozem, cambisol, regosol y, en laderas, andosol.','Es común el tepetate, una capa endurecida que frena raíces y retiene poca agua.'])+
+  L('Fauna que puede afectar el cultivo',['Tuza, conejo, ardilla, tlacuache y coyote.','Cuervo, paloma y zanate, que dañan semilla y elote.'])+
+  L('Plagas y enfermedades comunes',['Gusano cogollero, gallina ciega, gusano elotero y gusano trozador.','Tuza en raíces. Tizón foliar, roya, carbón y pudrición de mazorca.'])+
+  '<p class="note">Suelo, fauna y plagas son referencias generales de la región, no mediciones de tu parcela.</p>';
+ }catch(x){el.innerHTML='<p class="note" style="margin-top:0">'+esc(x.message)+'</p>'}
+}
+$$('.tab').forEach((b,i)=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('on',x===b));$$('.view').forEach((v,j)=>v.classList.toggle('on',j===i));scrollTo(0,0);if(i===1)clima();if(i===2)zona()});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if(S.fecha&&S.ha)calc();
+</script></body></html>
